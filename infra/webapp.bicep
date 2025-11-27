@@ -1,25 +1,30 @@
-param webAppName string = uniqueString(resourceGroup().id) // Generate unique String for web app name
-param sku string = 'S1' // The SKU of App Service Plan
+param webAppName string // Web App name is required and will be supplied by the workflow variable (eShopOnWeb-webapp57092839)
+param sku string = 'F1' // The App Service Plan SKU. Changed default from 'S1' to 'F1' (Free) to resolve common policy violations in lab environments.
 param location string = resourceGroup().location
 
 var appServicePlanName = toLower('AppServicePlan-${webAppName}')
 
+// Resource: App Service Plan (Server Farm)
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: appServicePlanName
   location: location
   properties: {
-    reserved: true
+    // Required for Linux App Service Plan
+    reserved: true 
   }
   sku: {
     name: sku
   }
 }
+
+// Resource: Web App (Site)
 resource appService 'Microsoft.Web/sites@2022-09-01' = {
   name: webAppName
   kind: 'app'
   location: location
   properties: {
     serverFarmId: appServicePlan.id
+    httpsOnly: true // Recommended setting for production apps
     siteConfig: {
       linuxFxVersion: 'DOTNETCORE|8.0'
       appSettings: [
@@ -35,3 +40,6 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
     }
   }
 }
+
+// Optional: Output the default hostname for easy access after deployment
+output webAppHostName string = appService.properties.defaultHostName
