@@ -1,5 +1,5 @@
 param webAppName string // Web App name is required and will be supplied by the workflow variable (eShopOnWeb-webapp57092839)
-param sku string = 'F1' // The App Service Plan SKU. Changed default from 'S1' to 'F1' (Free) to resolve common policy violations in lab environments.
+param sku string = 'B1' // CHANGED: Setting to Basic (B1) as Free (F1) is sometimes disallowed in favor of B1 in lab policies.
 param location string = resourceGroup().location
 
 var appServicePlanName = toLower('AppServicePlan-${webAppName}')
